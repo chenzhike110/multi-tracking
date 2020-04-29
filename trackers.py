@@ -1,4 +1,5 @@
 from kalmanfilter import KalmanBoxTracker 
+import cv2
 import numpy as np 
 import tool
 
@@ -29,16 +30,27 @@ class tracker(object):
         for i in connect:
             self.tplayers[int(i[0])].update(tool.xy_to_sr(matrix[int(i[1])]))
         for i in A2_nonconnect:
-            person = player(tool.xy_to_sr(matrix[i]),self.count+1)
+            person = player(tool.xy_to_sr(matrix[i]),self.count)
             self.tplayers.append(person)
             self.count += 1
     
-    def get_information(self):
+    def get_information_and_draw(self, draw=False, img=None):
         position = []
         for index, person in enumerate(self.tplayers):
-            position.append([tool.sr_to_xy(person.get_data()),person.number])
-        return position
-
+            position.append([tool.sr_to_xy(person.get_data()), person.number])
+        if draw == True:
+            for index, players in enumerate(position):
+                c1 = tuple([int(i) for i in player[1:3]])
+                c2 = tuple([int(i) for i in player[3:5]])
+                label = "{0}".format(player[6])
+                cv2.rectangle(img, c1, c2, [0,0,0], 1)
+                t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN,1,1)[0]
+                c2 = c1[0]+t_size[0]+3, c1[1]+t_size[1]+4
+                cv2.rectangle(img, c1, c2, color, -1)
+                cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [0,0,0], 1)
+            return img
+        else:
+            return position
 
 class player(object):
     def __init__(self,args_of_player,number):
@@ -104,6 +116,6 @@ class player(object):
 
 if __name__ == '__main__':
     sort = tracker([[1,2,3,4,0]])
-    print(sort.get_information())
+    print(sort.get_information_and_draw())
     sort.update([[1.1,2,3,4,0],[1,2,3,4,0]])
-    print(sort.get_information())
+    print(sort.get_information_and_draw())
