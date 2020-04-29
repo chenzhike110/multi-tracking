@@ -74,6 +74,9 @@ while(1):
     else:
         sort.update(detections)
     img = sort.get_information(draw=True,img=frame)
+    k = cv2.waitKey(30) & 0xff
+    if k == 27:
+        break
     cv2.imshow('result',img)
 
 cap.release()

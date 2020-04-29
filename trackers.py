@@ -34,19 +34,19 @@ class tracker(object):
             self.tplayers.append(person)
             self.count += 1
     
-    def get_information_and_draw(self, draw=False, img=None):
+    def get_information(self, draw=False, img=None):
         position = []
         for index, person in enumerate(self.tplayers):
             position.append([tool.sr_to_xy(person.get_data()), person.number])
         if draw == True:
             for index, players in enumerate(position):
-                c1 = tuple([int(i) for i in player[1:3]])
-                c2 = tuple([int(i) for i in player[3:5]])
-                label = "{0}".format(player[6])
+                c1 = tuple([int(i) for i in players[0][0:2]])
+                c2 = tuple([int(i) for i in players[0][2:4]])
+                label = "{0}".format(players[1])
                 cv2.rectangle(img, c1, c2, [0,0,0], 1)
                 t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN,1,1)[0]
                 c2 = c1[0]+t_size[0]+3, c1[1]+t_size[1]+4
-                cv2.rectangle(img, c1, c2, color, -1)
+                cv2.rectangle(img, c1, c2, [255,255,255], -1)
                 cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [0,0,0], 1)
             return img
         else:

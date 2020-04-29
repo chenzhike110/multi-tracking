@@ -7,8 +7,6 @@ from util import *
 from read_build import Darknet
 import argparse
 import pickle as pkl 
-import pandas as pd 
-import random
 import cv2 
 
 def arg_parse():
@@ -72,7 +70,7 @@ img_, orig_im, dim = prep_image(args.images, 416)
 with torch.no_grad():
     prediction = model(Variable(img_, CUDA))
 prediction = write_results(prediction, confidence, num_classes, nms_conf=nms_thresh)
-
+print(prediction)
 for i in range(len(prediction)):
     img = write(prediction[i], orig_im, [255,255,255])
 cv2.imshow("result", img)
