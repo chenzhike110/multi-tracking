@@ -3,7 +3,7 @@ import numpy as np
 import tool
 
 class tracker(object):
-    def __init__(self,playermatrix):
+    def __init__(self,matrix):
         '''
         arg:
             playermatrix    [[1,2,3,4,0]  [x1,y1,x2,y2,lable]
@@ -13,30 +13,25 @@ class tracker(object):
             update    更新
             draw      画图
         '''
-        #帧数
-        self.number = 1
         self.tplayers = []
-        self.count = 0
+        matrix = [tool.xy_to_sr(np.array(i)) for i in matrix]
+        for index, position in enumerate(matrix):
+            person = player(position,index)
+            self.tplayers.append(person)
+        self.count = len(self.tplayers)
     
     def update(self,matrix):
-        if self.number == 1:
-            matrix = [tool.xy_to_sr(np.array(i)) for i in matrix]
-            for index, position in enumerate(matrix):
-                person = player(position,index)
-                self.tplayers.append(person)
-            self.number += 1
-            self.count = len(self.tplayers)
-        else:
-            matrix = [np.array(i) for i in matrix]
-            ren = np.zeros((len(self.tplayers)), dtype=np.float32)
-            for index, people in self.tplayers:
-                ren[index] = tool.sr_to_xy(people.pred_next())
-            connect,A1_nonconnect,A2_nonconnect = tool.km(ren,matrix)
-            for i in connect:
-                self.tplayers[i[0]].update(tool.xy_to_sr(matrix[i[1]]))
-            for i in A2_nonconnect:
-                person = player(tool.xy_to_sr(matrix[i]),self.count+1)
-                self.count += 1
+        matrix = [np.array(i) for i in matrix]
+        ren = np.zeros((len(self.tplayers),5), dtype=np.float32)
+        for index, people in enumerate(self.tplayers):
+            ren[index] = tool.sr_to_xy(people.pred_next())
+        connect,A1_nonconnect,A2_nonconnect = tool.km(ren,matrix)
+        for i in connect:
+            self.tplayers[int(i[0])].update(tool.xy_to_sr(matrix[int(i[1])]))
+        for i in A2_nonconnect:
+            person = player(tool.xy_to_sr(matrix[i]),self.count+1)
+            self.tplayers.append(person)
+            self.count += 1
     
     def get_information(self):
         position = []
@@ -78,7 +73,7 @@ class player(object):
         pred_box=np.array(pred_box_all[0:5]).reshape(1,5)
         pred_box[0][4]=0
         self.is_tracking=False
-        return pred_box
+        return pred_box.flatten()
 
     def update(self,bbox):
         '''
@@ -109,5 +104,6 @@ class player(object):
 
 if __name__ == '__main__':
     sort = tracker([[1,2,3,4,0]])
+    print(sort.get_information())
     sort.update([[1.1,2,3,4,0],[1,2,3,4,0]])
     print(sort.get_information())

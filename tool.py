@@ -1,6 +1,6 @@
 import numpy as np 
 
-def build_match_max(nal,nbl):
+def build_match_max(A1,A2):
     '''
     构建权值矩阵
     '''
